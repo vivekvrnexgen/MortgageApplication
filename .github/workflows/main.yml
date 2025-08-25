@@ -1,4 +1,4 @@
-name: DBB CI/CD
+name: DBB Build
 
 on:
   push:
@@ -11,19 +11,21 @@ jobs:
     labels: [ "zdt", "dbb" ]
 
     steps:
-      - name: Checkout source
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run zAppBuild
+      - name: Run DBB user build
         run: |
-          groovyz ${{ secrets.ZAPPBUILD_DIR }}/build.groovy \
+          ${{ secrets.DBB_HOME }}/bin/groovyz \
+            ${{ secrets.ZAPPBUILD_DIR }}/build.groovy \
             --sourceDir ${{ secrets.SOURCEDIR }} \
             --workDir   ${{ secrets.WORKDIR }} \
             --hlq       ${{ secrets.HLQ }} \
             --application ${{ secrets.APPLICATION }} \
-            --impactBuild --verbose
+            --verbose \
+            --userBuild 'MortgageApplication/cobol/epsmpmt.cbl'
 
-      - name: Archive build reports
+      - name: Upload build reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
