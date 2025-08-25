@@ -1,0 +1,31 @@
+name: DBB CI/CD
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    labels: [ "zdt", "dbb" ]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Run zAppBuild
+        run: |
+          groovyz ${{ secrets.ZAPPBUILD_DIR }}/build.groovy \
+            --sourceDir ${{ secrets.SOURCEDIR }} \
+            --workDir   ${{ secrets.WORKDIR }} \
+            --hlq       ${{ secrets.HLQ }} \
+            --application ${{ secrets.APPLICATION }} \
+            --impactBuild --verbose
+
+      - name: Archive build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbb-reports
+          path: ${{ secrets.WORKDIR }}/reports
